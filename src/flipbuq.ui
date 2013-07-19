@@ -16,7 +16,7 @@
                         <property name="height_request">480</property>
                         <property name="visible">True</property>
                         <property name="width_request">640</property>
-                        <signal handler="onExpose" name="configure-event"/>
+                        <signal handler="onDraw" name="draw"/>
                     </object>
                 </child>
                 <child>
@@ -24,11 +24,11 @@
                         <property name="spacing">5</property>
                         <property name="visible">True</property>
                         <child>
-                            <object class="GtkToggleButton" id="BtnPlay">
+                            <object class="GtkButton" id="BtnPlay">
                                 <property name="border_width">10</property>
                                 <property name="is_focus">True</property>
                                 <property name="visible">True</property>
-                                <signal handler="onPlay" name="toggled"/>
+                                <signal handler="onPlay" name="clicked"/>
                                 <child>
                                     <object class="GtkImage" id="image8">
                                         <property name="stock">gtk-media-play</property>
@@ -38,10 +38,10 @@
                             </object>
                         </child>
                         <child>
-                            <object class="GtkToggleButton" id="BtnStop">
+                            <object class="GtkButton" id="BtnStop">
                                 <property name="border_width">10</property>
                                 <property name="visible">True</property>
-                                <signal handler="onStop" name="toggled"/>
+                                <signal handler="onStop" name="clicked"/>
                                 <child>
                                     <object class="GtkImage" id="image9">
                                         <property name="stock">gtk-media-stop</property>
@@ -54,10 +54,10 @@
                             </packing>
                         </child>
                         <child>
-                            <object class="GtkToggleButton" id="BtnRecord">
+                            <object class="GtkButton" id="BtnRecord">
                                 <property name="border_width">10</property>
                                 <property name="visible">True</property>
-                                <signal handler="onRecord" name="toggled"/>
+                                <signal handler="onRecord" name="clicked"/>
                                 <child>
                                     <object class="GtkImage" id="imageRecord">
                                         <property name="stock">gtk-media-record</property>
@@ -117,6 +117,22 @@
                             </object>
                             <packing>
                                 <property name="position">6</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="BtnSettings">
+                                <property name="border_width">10</property>
+                                <property name="visible">True</property>
+                                <signal name="clicked" handler="onRecord"/>
+                                <child>
+                                    <object class="GtkImage" id="imagePreferences">
+                                        <property name="stock">gtk-preferences</property>
+                                        <property name="visible">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                            <packing>
+                                <property name="position">7</property>
                             </packing>
                         </child>
                     </object>

@@ -30,10 +30,7 @@ UI_FILE = "src/flipbuq.ui"
 
 
 class FlipBuqUI(object):
-    _controls = ['BtnPlay', 'BtnStop', 'BtnRecord', 'BtnTime', 'ComboFPS']
-    cmdline = 'autovideosrc ! tee name=tp ' +\
-              'tp. ! queue ! videoconvert ! pngenc snapshot=false ! multifilesink location="frame%d.png" ' +\
-              'tp. ! queue ! autovideosink'
+    _controls = ('BtnPlay', 'BtnStop', 'BtnRecord', 'BtnTime', 'ComboFPS', 'BtnSettings')
 
     def __init__(self):
         self._buildPipeline()
@@ -44,7 +41,7 @@ class FlipBuqUI(object):
         self.builder.add_from_file(UI_FILE)
         self.builder.connect_signals(self)
         self.mainWindow = self.builder.get_object('MainWindow')
-        self._disableButtons(excepting=['BtnRecord', 'BtnTime', 'ComboFPS'])
+        self._disableButtons(excepting=['BtnRecord', 'BtnTime', 'ComboFPS', 'BtnSettings'])
         self.videoWindow = self.builder.get_object('VideoWindow')
         self.videoWindow.set_double_buffered(False)
         self.mainWindow.show_all()
@@ -109,17 +106,19 @@ class FlipBuqUI(object):
 
     def onShutdown(self, window, args):
         Gtk.main_quit()
+        self.pipeline.set_state(Gst.State.NULL)
 
     def onPlay(self, button, *args):
         self.pipeline.set_state(Gst.State.PLAYING)
+        self._disableButtons(excepting=['BtnStop',])
 
     def onStop(self, button, *args):
-        print self, button, args
+        self.pipeline.set_state(Gst.State.NULL)
+        self._disableButtons(excepting=['BtnRecord', 'BtnTime', 'ComboFPS'])
 
     def onRecord(self, button, *args):
         self._disableButtons(excepting = ['BtnStop'])
         self.pipeline.set_state(Gst.State.PLAYING)
-        print self, button, args
 
     def onFpsSelect(self, button, *args):
         print self, button, args
@@ -127,21 +126,18 @@ class FlipBuqUI(object):
     def _disableButtons(self, excepting):
         for cId in self._controls:
             c = self.builder.get_object(cId)
-            if cId not in excepting:
-                c.set_sensitive(False)
+            c.set_sensitive(cId in excepting)
 
     def onBusSync(self, bus, message):
         if message.get_structure().get_name() == 'prepare-window-handle':
-            print('prepare-xwindow-id')
             message.src.set_property('force-aspect-ratio', True)
             message.src.set_window_handle(self.xid)
 
-    def onExpose(self, widget, evt):
+    def onDraw(self, widget, evt):
         """
-        This function is called everytime the video window needs to be redrawn 
-        (due to damage/exposure, rescaling, etc). GStreamer takes care of this 
-        in the PAUSED and PLAYING states, otherwise, we simply draw a black 
-        rectangle to avoid garbage showing up.
+        Draw a gray background when pipeline is in NULL state.
+        GStreamer takes care of this in the PAUSED and PLAYING states, otherwise, 
+        we simply draw a black rectangle to avoid garbage showing up.
         """
         alloc = widget.get_allocation()
         cr = Gdk.cairo_create(widget.get_window())
