@@ -30,18 +30,19 @@ UI_FILE = "src/flipbuq.ui"
 
 
 class FlipBuqUI(object):
-    _controls = ('BtnPlay', 'BtnStop', 'BtnRecord', 'BtnTime', 'ComboFPS', 'BtnSettings')
+    _controls = ('BtnPlay', 'BtnStop', 'BtnRecord', 'BtnTime', 'ComboFPS', 'BtnDirectory')
 
     def __init__(self):
         self._buildPipeline()
         self._buildUI()
+        self._folder = os.path.expanduser("~")
 
     def _buildUI(self):
         self.builder = Gtk.Builder()
         self.builder.add_from_file(UI_FILE)
         self.builder.connect_signals(self)
         self.mainWindow = self.builder.get_object('MainWindow')
-        self._disableButtons(excepting=['BtnRecord', 'BtnTime', 'ComboFPS', 'BtnSettings'])
+        self._disableButtons(excepting=['BtnRecord', 'BtnTime', 'ComboFPS', 'BtnDirectory'])
         self.videoWindow = self.builder.get_object('VideoWindow')
         self.videoWindow.set_double_buffered(False)
         self.mainWindow.show_all()
@@ -49,6 +50,7 @@ class FlipBuqUI(object):
         # in the onBusSync() handler because threading issues will cause
         # segfaults there.
         self.xid = self.videoWindow.get_property('window').get_xid()
+
 
     def _buildPipeline(self):
         #Create the pipeline
@@ -104,6 +106,11 @@ class FlipBuqUI(object):
         pngQPad = pngQueue.get_static_pad('sink')
         teePad.link(pngQPad)
 
+    def _disableButtons(self, excepting):
+        for cId in self._controls:
+            c = self.builder.get_object(cId)
+            c.set_sensitive(cId in excepting)
+
     def onShutdown(self, window, args):
         Gtk.main_quit()
         self.pipeline.set_state(Gst.State.NULL)
@@ -123,10 +130,19 @@ class FlipBuqUI(object):
     def onFpsSelect(self, button, *args):
         print self, button, args
 
-    def _disableButtons(self, excepting):
-        for cId in self._controls:
-            c = self.builder.get_object(cId)
-            c.set_sensitive(cId in excepting)
+    def onSelectDirectory(self, button, *args):
+        dlg = Gtk.FileChooserDialog(
+            'Select a directory',
+            self.mainWindow,
+            Gtk.FileChooserAction.SELECT_FOLDER,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        )
+        dlg.set_current_folder(self._folder)
+        response = dlg.run()
+        if (response == Gtk.ResponseType.OK):
+            self._folder = dlg.get_filename()
+        dlg.destroy()
 
     def onBusSync(self, bus, message):
         if message.get_structure().get_name() == 'prepare-window-handle':
@@ -136,7 +152,7 @@ class FlipBuqUI(object):
     def onDraw(self, widget, evt):
         """
         Draw a gray background when pipeline is in NULL state.
-        GStreamer takes care of this in the PAUSED and PLAYING states, otherwise, 
+        GStreamer takes care of this in the PAUSED and PLAYING states, otherwise,
         we simply draw a black rectangle to avoid garbage showing up.
         """
         alloc = widget.get_allocation()

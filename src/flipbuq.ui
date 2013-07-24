@@ -120,13 +120,13 @@
                             </packing>
                         </child>
                         <child>
-                            <object class="GtkButton" id="BtnSettings">
+                            <object class="GtkButton" id="BtnDirectory">
                                 <property name="border_width">10</property>
                                 <property name="visible">True</property>
-                                <signal name="clicked" handler="onRecord"/>
+                                <signal name="clicked" handler="onSelectDirectory"/>
                                 <child>
                                     <object class="GtkImage" id="imagePreferences">
-                                        <property name="stock">gtk-preferences</property>
+                                        <property name="stock">gtk-save-as</property>
                                         <property name="visible">True</property>
                                     </object>
                                 </child>
