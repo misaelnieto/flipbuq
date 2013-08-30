@@ -1,0 +1,5 @@
+FlipBuq is a Linux application that allows you to create flip books with your webcam.
+
+I've been writing this on Fedora 18 and using the latest tools that GNOME has to offer: Gtk+3, GStreamer 1, and PyGi.
+
+Right now, you can only see a preview of the webcam and record some PNG's with it.
