@@ -29,7 +29,7 @@ UI_FILE = "src/flipbuq.ui"
 #UI_FILE = "/usr/local/share/flipbuq/ui/flipbuq.ui"
 
 
-class FlipBuqUI(object):
+class FlipBuqApp(Gtk.Application):
     _controls = ('BtnPlay', 'BtnStop', 'BtnRecord', 'BtnTime', 'ComboFPS', 'BtnDirectory')
 
     def __init__(self):
@@ -164,7 +164,7 @@ class FlipBuqUI(object):
 def main():
     GObject.threads_init()
     Gst.init_check(sys.argv)
-    app = FlipBuqUI()
+    app = FlipBuqApp()
     Gtk.main()
 
 if __name__ == "__main__":
